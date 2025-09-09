@@ -1,11 +1,12 @@
 # app/routes.py
 from flask import render_template, flash, redirect, url_for, Blueprint, request
 from flask_login import current_user, login_user, logout_user, login_required
-from werkzeug.urls import url_parse
-# from urllib.parse import urlparse
+# from werkzeug.urls import url_parse
+from urllib.parse import urlparse
 from app import db
 from app.forms import LoginForm, RegistrationForm
 from app.models import User, Role, LoginEvent
+from app.decorators import admin_required
 
 # Create a Blueprint
 bp = Blueprint('main', __name__)
@@ -74,3 +75,12 @@ def register():
 @login_required
 def dashboard():
     return render_template('dashboard.html')
+
+@bp.route('/analytics')
+@login_required
+@admin_required
+def analytics():
+    """Analytics page accessible only by admins."""
+    # Query all login events, ordered by most recent
+    events = LoginEvent.query.order_by(LoginEvent.timestamp.desc()).all()
+    return render_template('analytics.html', events=events)
