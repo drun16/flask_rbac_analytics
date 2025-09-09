@@ -1,7 +1,9 @@
-Flask
-Flask-SQLAlchemy
+Flask>=2.0
+Flask-SQLAlchemy>=3.0
+SQLAlchemy>=2.0
 Flask-Migrate
 Flask-Login
 Flask-WTF
 python-dotenv
 email_validator
+Werkzeug>=2.0
