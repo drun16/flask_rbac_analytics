@@ -4,11 +4,33 @@
     <h1>Admin Analytics</h1>
     <p>This page is only visible to administrators.</p>
 
-    <h2 class="mt-4">User Login History</h2>
+    <div class="row my-4">
+        <div class="col-md-6">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-header">Total Users</div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ stats.total_users }}</h5>
+                    <p class="card-text">Total number of registered users.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-header">Total Logins</div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ stats.total_logins }}</h5>
+                    <p class="card-text">Total successful login events.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h2 class="mt-4">User Activity History</h2>
     <table class="table table-striped">
         <thead>
             <tr>
                 <th>User</th>
+                <th>Action</th>
                 <th>Timestamp (UTC)</th>
             </tr>
         </thead>
@@ -16,11 +38,12 @@
             {% for event in events %}
             <tr>
                 <td>{{ event.user.username }}</td>
+                <td>{{ event.description }}</td>
                 <td>{{ event.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
             </tr>
             {% else %}
             <tr>
-                <td colspan="2">No login events recorded yet.</td>
+                <td colspan="2">No activity recorded yet.</td>
             </tr>
             {% endfor %}
         </tbody>

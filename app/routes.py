@@ -5,8 +5,9 @@ from flask_login import current_user, login_user, logout_user, login_required
 from urllib.parse import urlparse
 from app import db
 from app.forms import LoginForm, RegistrationForm
-from app.models import User, Role, LoginEvent
+from app.models import User, Role, Activity
 from app.decorators import admin_required
+from sqlalchemy import func
 
 # Create a Blueprint
 bp = Blueprint('main', __name__)
@@ -31,8 +32,8 @@ def login():
         login_user(user, remember=form.remember_me.data)
         
         # --- Analytics: Record Login Event ---
-        login_event = LoginEvent(user_id=user.id)
-        db.session.add(login_event)
+        activity = Activity(user_id=user.id, description="user_login")
+        db.session.add(activity)
         db.session.commit()
         # ------------------------------------
 
@@ -66,6 +67,13 @@ def register():
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
+
+        # --- Analytics: Record Registration Activity ---
+        activity = Activity(user_id=user.id, description="user_register")
+        db.session.add(activity)
+        db.session.commit()
+        # -------------------------
+
         flash('Congratulations, you are now a registered user!', 'success')
         return redirect(url_for('main.login'))
         
@@ -81,6 +89,17 @@ def dashboard():
 @admin_required
 def analytics():
     """Analytics page accessible only by admins."""
+
+    # --- Summary Statistics ---
+    total_users = User.query.count()
+    total_logins = Activity.query.filter_by(description='user_login').count()
+
     # Query all login events, ordered by most recent
-    events = LoginEvent.query.order_by(LoginEvent.timestamp.desc()).all()
-    return render_template('analytics.html', events=events)
+    events = Activity.query.order_by(Activity.timestamp.desc()).all()
+
+    stats = {
+        'total_users': total_users,
+        'total_logins': total_logins
+    }
+    
+    return render_template('analytics.html', events=events, stats=stats)

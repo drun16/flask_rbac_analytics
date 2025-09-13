@@ -26,7 +26,7 @@ class User(UserMixin, db.Model):
     role_id = db.Column(db.Integer, db.ForeignKey('role.id'))
     
     # This relationship will allow us to access login events for a user
-    logins = db.relationship('LoginEvent', backref='user', lazy='dynamic')
+    activities = db.relationship('Activity', backref='user', lazy='dynamic')
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -41,9 +41,10 @@ class User(UserMixin, db.Model):
     def is_admin(self):
         return self.role is not None and self.role.name == 'Admin'
 
-class LoginEvent(db.Model):
+class Activity(db.Model):
     """Model to store analytics data for user logins."""
     id = db.Column(db.Integer, primary_key=True)
+    description = db.Column(db.String(128), nullable = False)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
